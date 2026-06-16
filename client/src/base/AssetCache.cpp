@@ -101,12 +101,43 @@ const Model* AssetCache::getModel(const std::string& modelName)
     auto it = m_models.find(modelName);
     if (it != m_models.end()) return &it->second;
 
-    if (modelName != "world") return nullptr;
-
-    ensureMapLoaded();
-    Model model = buildWorldMesh(m_map);
-    model.materials[0].shader = getTerrainShader();
+    Model model;
+    if (modelName == "world") {
+        ensureMapLoaded();
+        model = buildWorldMesh(m_map);
+        model.materials[0].shader = getTerrainShader();
+    } else if (modelName == "character") {
+        model = LoadModel("client/assets/models/osrs_char.glb");
+    } else {
+        return nullptr;
+    }
 
     auto [ins, _] = m_models.emplace(modelName, model);
     return &ins->second;
+}
+
+void AssetCache::ensureAnimsLoaded(const std::string& modelName, const std::string& path)
+{
+    if (m_anims.count(modelName)) return;
+    AnimSet set;
+    set.anims = LoadModelAnimations(path.c_str(), &set.count);
+    m_anims.emplace(modelName, set);
+}
+
+int AssetCache::findAnimation(const std::string& modelName, const std::string& animName)
+{
+    if (modelName == "character") ensureAnimsLoaded(modelName, "client/assets/models/osrs_char.glb");
+    auto it = m_anims.find(modelName);
+    if (it == m_anims.end()) return -1;
+    for (int i = 0; i < it->second.count; i++) {
+        if (animName == it->second.anims[i].name) return i;
+    }
+    return -1;
+}
+
+const ModelAnimation* AssetCache::getAnimation(const std::string& modelName, int index)
+{
+    auto it = m_anims.find(modelName);
+    if (it == m_anims.end() || index < 0 || index >= it->second.count) return nullptr;
+    return &it->second.anims[index];
 }

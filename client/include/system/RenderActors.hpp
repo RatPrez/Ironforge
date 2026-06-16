@@ -3,5 +3,5 @@
 
 namespace System
 {
-    void RenderActors(WorldContext& ctx);
+    void RenderActors(WorldContext& ctx, const float& dt);
 } // namespace System
