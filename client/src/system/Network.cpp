@@ -7,6 +7,7 @@
 
 #include "shared/Base.hpp"
 #include "base/DebugTerminal.hpp"
+#include "base/AssetCache.hpp"
 #include <raylib.h>
 
 namespace
@@ -28,9 +29,10 @@ namespace
         float half = Base::kTileSize * 0.5f;
         float wx = pkt->x * (float)Base::kTileSize + half;
         float wz = pkt->y * (float)Base::kTileSize + half;
+        float wy = ctx.assets.heightAt(pkt->x, pkt->y);
         ctx.registry.emplace_or_replace<Actor>(entity);
         ctx.registry.emplace_or_replace<Position>(entity, pkt->x, pkt->y, pkt->heading);
-        ctx.registry.emplace_or_replace<RenderPosition>(entity, wx, 0.f, wz, wx, wz, -1.f, pkt->heading * 45.f);
+        ctx.registry.emplace_or_replace<RenderPosition>(entity, wx, wy, wz, wx, wy, wz, -1.f, pkt->heading * 45.f);
 
         DebugTerminal::Instance()->log("Entity spawned: " + std::to_string(pkt->netId));
     }
@@ -71,6 +73,7 @@ namespace
         });
         ctx.registry.patch<RenderPosition>(entity, [&](RenderPosition& rp) {
             rp.startX        = rp.x;
+            rp.startY        = rp.y;
             rp.startZ        = rp.z;
             rp.moveStartTime = (float)GetTime();
             rp.heading       = pkt->heading * 45.f;

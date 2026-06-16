@@ -4,6 +4,7 @@
 
 #include "shared/Base.hpp"
 #include "shared/Components.hpp"
+#include "base/AssetCache.hpp"
 #include "Components.hpp"
 
 static constexpr float kTickDuration = 0.6f;
@@ -20,11 +21,13 @@ void System::MovementInterp(WorldContext& ctx, const float& dt)
         float half = Base::kTileSize * 0.5f;
         float targetX = pos.x * (float)Base::kTileSize + half;
         float targetZ = pos.y * (float)Base::kTileSize + half;
+        float targetY = ctx.assets.heightAt(pos.x, pos.y);
 
         float progress = ((float)GetTime() - rpos.moveStartTime) / kTickDuration;
         progress = Clamp(progress, 0.f, 1.f);
 
         rpos.x = Lerp(rpos.startX, targetX, progress);
+        rpos.y = Lerp(rpos.startY, targetY, progress);
         rpos.z = Lerp(rpos.startZ, targetZ, progress);
 
         if (progress >= 1.f) {
