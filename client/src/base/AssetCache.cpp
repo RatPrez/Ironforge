@@ -25,6 +25,9 @@ Shader AssetCache::getTerrainShader()
         m_terrainShader = LoadShader(
             "client/assets/shaders/terrain.vs",
             "client/assets/shaders/terrain.fs");
+        int loc = GetShaderLocation(m_terrainShader, "tileSize");
+        float tileSize = (float)Base::kTileSize;
+        SetShaderValue(m_terrainShader, loc, &tileSize, SHADER_UNIFORM_FLOAT);
         m_shaderLoaded = true;
     }
     return m_terrainShader;
