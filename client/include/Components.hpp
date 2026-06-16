@@ -2,9 +2,7 @@
 
 struct LocalPlayer {};
 
-struct Actor {
-    bool state = true; // temp to init
-}; // no args for an Actor for now, just a box
+struct Actor {};
 
 struct RenderPosition
 {

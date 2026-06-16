@@ -4,4 +4,4 @@
 namespace System
 {
     void Pathfinder(WorldContext& ctx);
-}
+} // namespace System

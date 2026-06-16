@@ -4,4 +4,4 @@
 namespace System
 {
     void Input(WorldContext& ctx);
-}
+} // namespace System

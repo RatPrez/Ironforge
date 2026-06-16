@@ -4,4 +4,4 @@
 namespace System
 {
     void Camera(WorldContext& ctx, const float& dt);
-};
+} // namespace System

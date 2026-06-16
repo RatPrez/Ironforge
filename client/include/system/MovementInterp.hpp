@@ -4,4 +4,4 @@
 namespace System
 {
     void MovementInterp(WorldContext& ctx, const float& dt);
-}
+} // namespace System

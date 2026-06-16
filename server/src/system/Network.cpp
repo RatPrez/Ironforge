@@ -8,22 +8,13 @@
 
 namespace
 { // handlers
-    void handleTest(void* pData)
-    {
-
-    }
-
     void handleMove(WorldContext& ctx, HSteamNetConnection conn, void* pData)
     {
         auto it = ctx.net.connToEntity.find(conn);
-        if (it == ctx.net.connToEntity.end()) {
-            return;
-        }
-
+        if (it == ctx.net.connToEntity.end()) return;
         entt::entity entity = it->second;
         auto* pkt = reinterpret_cast<const CPacketMove*>(pData);
         ctx.registry.emplace_or_replace<MoveTarget>(entity, (uint16_t)pkt->x, (uint16_t)pkt->y);
-        printf("MoveTarget set: %d, %d\n", pkt->x, pkt->y);
     }
 }
 
@@ -31,8 +22,8 @@ void System::NetReceive(WorldContext& ctx)
 {
     ctx.net.sockets->RunCallbacks();
 
-    ISteamNetworkingMessage* msgs[16];
-    int count = ctx.net.sockets->ReceiveMessagesOnPollGroup(ctx.net.pollGroup, msgs, 16);
+    ISteamNetworkingMessage* msgs[64];
+    int count = ctx.net.sockets->ReceiveMessagesOnPollGroup(ctx.net.pollGroup, msgs, 64);
     for (int i = 0; i < count; i++) {
         ISteamNetworkingMessage* msg = msgs[i];
         if (msg->m_cbSize < (int)sizeof(PacketHeader)) {

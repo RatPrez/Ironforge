@@ -33,7 +33,13 @@ void System::Movement(WorldContext& ctx)
         pkt.x       = pos.x;
         pkt.y       = pos.y;
         pkt.heading = pos.heading;
-        ctx.net.outbox.broadcast(ctx.net.clients, pkt);
+        uint32_t netId = pkt.netId;
+        auto players = ctx.registry.view<Player, KnownEntities>();
+        for (auto playerEnt : players) {
+            auto& known = players.get<KnownEntities>(playerEnt);
+            if (!known.netIds.count(netId)) continue;
+            ctx.net.outbox.send(players.get<Player>(playerEnt).conn, pkt);
+        }
 
         if (path.index >= path.steps.size()) {
             ctx.registry.remove<MovePath>(entity);

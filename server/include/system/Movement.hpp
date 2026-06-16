@@ -4,4 +4,4 @@
 namespace System
 {
     void Movement(WorldContext& ctx);
-}
+} // namespace System

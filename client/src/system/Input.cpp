@@ -27,6 +27,7 @@ void System::Input(WorldContext& ctx)
 
     int gridX = (int)hitPoint.x / Base::kTileSize;
     int gridY = (int)hitPoint.z / Base::kTileSize;
+    if (gridX < 0 || gridX >= Base::kWorldSize || gridY < 0 || gridY >= Base::kWorldSize) return;
 
     CPacketMove pkt;
     pkt.x = gridX;

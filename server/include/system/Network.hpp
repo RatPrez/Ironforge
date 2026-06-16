@@ -5,4 +5,4 @@ namespace System
 {
     void NetReceive(WorldContext& ctx);
     void NetSend(WorldContext& ctx);
-}
+} // namespace System

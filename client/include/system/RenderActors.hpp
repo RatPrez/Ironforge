@@ -4,4 +4,4 @@
 namespace System
 {
     void RenderActors(WorldContext& ctx);
-};
+} // namespace System

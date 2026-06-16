@@ -86,8 +86,8 @@ void System::NetReceive(WorldContext& ctx)
         return;
     }
 
-    ISteamNetworkingMessage* msgs[16];
-    int count = ctx.net.sockets->ReceiveMessagesOnConnection(ctx.net.conn, msgs, 16);
+    ISteamNetworkingMessage* msgs[64];
+    int count = ctx.net.sockets->ReceiveMessagesOnConnection(ctx.net.conn, msgs, 64);
     for (int i = 0; i < count; i++) {
         ISteamNetworkingMessage* msg = msgs[i];
         if (msg->m_cbSize < (int)sizeof(PacketHeader)) {

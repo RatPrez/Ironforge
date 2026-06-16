@@ -22,15 +22,17 @@ void System::Sync(WorldContext& ctx)
 
         // spawn entities the player doesn't know about yet
         for (uint32_t netId : visible) {
-            if (known.netIds.count(netId)) continue;
-            auto& pos = ctx.registry.get<Position>(static_cast<entt::entity>(netId));
+            auto [it, inserted] = known.netIds.insert(netId);
+            if (!inserted) continue;
+            entt::entity ent = static_cast<entt::entity>(netId);
+            if (!ctx.registry.all_of<Position>(ent)) continue;
+            auto& pos = ctx.registry.get<Position>(ent);
             SPacketSpawn pkt;
             pkt.netId   = netId;
             pkt.x       = pos.x;
             pkt.y       = pos.y;
             pkt.heading = pos.heading;
             ctx.net.outbox.send(player.conn, pkt);
-            known.netIds.insert(netId);
         }
 
         // despawn entities that no longer exist
