@@ -18,7 +18,7 @@ void System::Camera(WorldContext& ctx, const float& dt)
 
     float scroll = GetMouseWheelMove();
     if (scroll != 0.f) {
-        settings.fov = Clamp(settings.fov - scroll * 4.f, 10.f, 100.f);
+        settings.fov = Clamp(settings.fov - scroll * 2.f, 5.f, 100.f);
         ctx.camera.fovy = settings.fov;
     }
 
@@ -36,13 +36,37 @@ void System::Camera(WorldContext& ctx, const float& dt)
         settings.pitch = Clamp(settings.pitch - rotateSpeed, 5.0f, 89.0f);
     }
 
+    if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
+        Vector2 delta = GetMouseDelta();
+        settings.yaw   -= delta.x * 0.3f;
+        settings.pitch  = Clamp(settings.pitch + delta.y * 0.3f, 5.0f, 89.0f);
+    }
+
     float yawRad = settings.yaw * DEG2RAD;
     float pitchRad = settings.pitch * DEG2RAD;
 
-    ctx.camera.target = { rp.x, rp.y, rp.z };
+    constexpr float kFocusHeight = 2.5f; // just above center of a 4-unit-tall character
+    Vector3 target = { rp.x, rp.y + kFocusHeight, rp.z };
+
+    if (!settings.focusInitialized) {
+        settings.focusX = target.x;
+        settings.focusY = target.y;
+        settings.focusZ = target.z;
+        settings.focusInitialized = true;
+    }
+
+    constexpr float kFocusLagSpeed = 5.0f; // higher = snappier, lower = more lag
+    float smoothing = 1.f - expf(-kFocusLagSpeed * dt);
+    settings.focusX = Lerp(settings.focusX, target.x, smoothing);
+    settings.focusY = Lerp(settings.focusY, target.y, smoothing);
+    settings.focusZ = Lerp(settings.focusZ, target.z, smoothing);
+
+    Vector3 focus = { settings.focusX, settings.focusY, settings.focusZ };
+
+    ctx.camera.target = focus;
     ctx.camera.position = {
-        rp.x + settings.radius * cosf(pitchRad) * sinf(yawRad),
-        rp.y + settings.radius * sinf(pitchRad),
-        rp.z + settings.radius * cosf(pitchRad) * cosf(yawRad),
+        focus.x + settings.radius * cosf(pitchRad) * sinf(yawRad),
+        focus.y + settings.radius * sinf(pitchRad),
+        focus.z + settings.radius * cosf(pitchRad) * cosf(yawRad),
     };
 }

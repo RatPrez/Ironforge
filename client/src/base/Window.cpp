@@ -12,7 +12,7 @@ Window::Window()
     m_camera.position = { 0.0f, 80.0f, 80.0f };
     m_camera.target   = { 0.0f, 0.0f, 0.0f };
     m_camera.up       = { 0.0f, 1.0f, 0.0f };
-    m_camera.fovy     = 60.0f;
+    m_camera.fovy     = 40.0f;
     m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
