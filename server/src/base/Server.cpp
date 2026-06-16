@@ -2,11 +2,13 @@
 #include <csignal>
 #include <chrono>
 #include <thread>
+#include <cstring>
 
 #include "Systems.hpp"
 #include "base/WorldContext.hpp"
 #include "shared/Packets.hpp"
 #include "shared/Components.hpp"
+#include "shared/MapLoader.hpp"
 #include "Components.hpp"
 
 Server* Server::s_instance = nullptr;
@@ -15,6 +17,9 @@ Server::Server()
     : m_running(true)
 {
     s_instance = this;
+    memset(m_map, 0, sizeof(m_map));
+    if (!loadMap("chunk_0_0.omap", m_map))
+        fprintf(stderr, "[server] warning: chunk_0_0.omap not found, all tiles passable\n");
 
     SteamDatagramErrMsg err;
     if (!GameNetworkingSockets_Init(nullptr, err)) {
@@ -110,7 +115,7 @@ void Server::run()
     while (m_running) {
         auto tick_start = std::chrono::steady_clock::now();
 
-        WorldContext ctx{ m_world, m_net };
+        WorldContext ctx{ m_world, m_net, m_map };
         System::NetReceive(ctx);
         System::Pathfinder(ctx);
         System::Movement(ctx);

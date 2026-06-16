@@ -5,6 +5,7 @@
 
 #include "shared/Components.hpp"
 #include "shared/Base.hpp"
+#include "shared/Map.hpp"
 #include "Components.hpp"
 
 namespace
@@ -45,7 +46,8 @@ namespace
         bool operator>(const Node& o) const { return f > o.f; }
     };
 
-    MovePath astar(uint16_t sx, uint16_t sy, uint16_t tx, uint16_t ty)
+    MovePath astar(uint16_t sx, uint16_t sy, uint16_t tx, uint16_t ty,
+                   const TileData (&map)[kChunkSize][kChunkSize])
     {
         if (sx == tx && sy == ty) return {};
 
@@ -82,9 +84,10 @@ namespace
                 if (nx < 0 || ny < 0) continue;
                 if (std::abs(nx - sx) > Base::kMaxPathDistance || std::abs(ny - sy) > Base::kMaxPathDistance) continue;
 
+                if (nx >= kChunkSize || ny >= kChunkSize) continue;
                 TileKey next{ (uint16_t)nx, (uint16_t)ny };
 
-                // TODO: check tile collision flags here
+                if (map[ny][nx].flags & TILE_BLOCKED) continue;
 
                 int g = gCost[cur] + (kIsDiagonal[i] ? kDiagonalCost : kCardinalCost);
                 int h = octile(nx, ny, tx, ty);
@@ -107,7 +110,7 @@ void System::Pathfinder(WorldContext& ctx)
         auto& pos    = view.get<Position>(entity);
         auto& target = view.get<MoveTarget>(entity);
 
-        MovePath path = astar(pos.x, pos.y, target.x, target.y);
+        MovePath path = astar(pos.x, pos.y, target.x, target.y, ctx.map);
         if (!path.steps.empty()) {
             ctx.registry.emplace_or_replace<MovePath>(entity, std::move(path));
         }
