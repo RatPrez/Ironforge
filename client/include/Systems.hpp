@@ -1,5 +1,7 @@
 #pragma once
 #include "system/Camera.hpp"
+#include "system/Chat.hpp"
+#include "system/ChatBubbles.hpp"
 #include "system/Input.hpp"
 #include "system/MovementInterp.hpp"
 #include "system/Network.hpp"

@@ -15,8 +15,8 @@ public:
     ~Game();
     void tick(const float& dt, Camera3D& camera);
     void tickLate(const float& dt, Camera3D& camera);
-    void draw2D();
-    void draw3D(Camera3D& camera);
+    void draw2D(const float& dt, Camera3D& camera);
+    void draw3D(const float& dt, Camera3D& camera);
 
     static Game* Instance() { return s_instance; }
 

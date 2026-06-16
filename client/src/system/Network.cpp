@@ -9,6 +9,7 @@
 #include "base/DebugTerminal.hpp"
 #include "base/AssetCache.hpp"
 #include <raylib.h>
+#include <cstring>
 
 namespace
 { // handlers
@@ -31,8 +32,10 @@ namespace
         float wz = pkt->y * (float)Base::kTileSize + half;
         float wy = ctx.assets.heightAt(pkt->x, pkt->y);
         ctx.registry.emplace_or_replace<Actor>(entity);
+        ctx.registry.emplace_or_replace<AnimationState>(entity);
         ctx.registry.emplace_or_replace<Position>(entity, pkt->x, pkt->y, pkt->heading);
-        ctx.registry.emplace_or_replace<RenderPosition>(entity, wx, wy, wz, wx, wy, wz, -1.f, pkt->heading * 45.f);
+        float heading = pkt->heading * 45.f;
+        ctx.registry.emplace_or_replace<RenderPosition>(entity, wx, wy, wz, wx, wy, wz, -1.f, heading, heading, heading);
 
         DebugTerminal::Instance()->log("Entity spawned: " + std::to_string(pkt->netId));
     }
@@ -75,9 +78,21 @@ namespace
             rp.startX        = rp.x;
             rp.startY        = rp.y;
             rp.startZ        = rp.z;
+            rp.startHeading  = rp.heading;
+            rp.targetHeading = pkt->heading * 45.f;
             rp.moveStartTime = (float)GetTime();
-            rp.heading       = pkt->heading * 45.f;
         });
+    }
+
+    void handleChat(WorldContext& ctx, void* pData)
+    {
+        auto* pkt = reinterpret_cast<const SPacketChat*>(pData);
+        auto it = ctx.net.netToEnt.find(pkt->netId);
+        if (it == ctx.net.netToEnt.end()) return;
+
+        char buf[129] = {};
+        memcpy(buf, pkt->text, 128);
+        ctx.registry.emplace_or_replace<ChatBubble>(it->second, std::string(buf), (float)GetTime() + 5.f);
     }
 }
 
@@ -110,6 +125,9 @@ void System::NetReceive(WorldContext& ctx)
             break;
         case PacketType::SPosition:
             handlePosition(ctx, msg->m_pData);
+            break;
+        case PacketType::SChat:
+            handleChat(ctx, msg->m_pData);
             break;
         }
         msg->Release();

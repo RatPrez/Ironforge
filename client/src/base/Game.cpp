@@ -82,14 +82,17 @@ void Game::tickLate(const float& dt, Camera3D& camera)
     System::NetSend(ctx);
 }
 
-void Game::draw2D()
+void Game::draw2D(const float& dt, Camera3D& camera)
 {
+    WorldContext ctx{ m_world, m_net, camera, m_assetCache, m_camSettings };
+    System::ChatBubbles(ctx);
+    System::Chat(ctx, dt);
     m_terminal.draw();
 }
 
-void Game::draw3D(Camera3D& camera)
+void Game::draw3D(const float& dt, Camera3D& camera)
 {
     WorldContext ctx{ m_world, m_net, camera, m_assetCache, m_camSettings };
     System::RenderWorld(ctx);
-    System::RenderActors(ctx);
+    System::RenderActors(ctx, dt);
 }

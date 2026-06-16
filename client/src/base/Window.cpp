@@ -32,10 +32,10 @@ void Window::run()
         rlImGuiBegin();
 
         BeginMode3D(m_camera);
-        m_game.draw3D(m_camera);
+        m_game.draw3D(dt, m_camera);
         EndMode3D();
 
-        m_game.draw2D();
+        m_game.draw2D(dt, m_camera);
         rlImGuiEnd();
         EndDrawing();
         m_game.tickLate(dt, m_camera);
