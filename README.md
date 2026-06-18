@@ -18,3 +18,5 @@ A tile-based multiplayer game with a client-server architecture, aiming to repli
 - Isometric camera with zoom, keyboard orbit, and middle-mouse drag pan; smoothed follow
 - In-game text chat with floating chat bubbles above characters
 - Standalone world editor for painting tile heights and collision flags and exporting map chunks
+
+![screenshot](docs/screenshot.png)
