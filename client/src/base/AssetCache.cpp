@@ -4,9 +4,14 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "shared/Base.hpp"
+#include "Base.hpp"
 #include "shared/Map.hpp"
 #include "shared/MapLoader.hpp"
+
+static constexpr const char* kMapPath        = "chunk_0_0.omap";
+static constexpr const char* kTerrainVS      = "client/assets/shaders/terrain.vs";
+static constexpr const char* kTerrainFS      = "client/assets/shaders/terrain.fs";
+static constexpr const char* kCharacterModel = "client/assets/models/osrs_char.glb";
 
 static constexpr int kVerts      = (kChunkSize + 1) * (kChunkSize + 1);
 static constexpr int kIndexCount = kChunkSize * kChunkSize * 6;
@@ -15,16 +20,14 @@ void AssetCache::ensureMapLoaded()
 {
     if (m_mapLoaded) return;
     memset(m_map, 0, sizeof(m_map));
-    loadMap("chunk_0_0.omap", m_map);
+    loadMap(kMapPath, m_map);
     m_mapLoaded = true;
 }
 
 Shader AssetCache::getTerrainShader()
 {
     if (!m_shaderLoaded) {
-        m_terrainShader = LoadShader(
-            "client/assets/shaders/terrain.vs",
-            "client/assets/shaders/terrain.fs");
+        m_terrainShader = LoadShader(kTerrainVS, kTerrainFS);
         int loc = GetShaderLocation(m_terrainShader, "tileSize");
         float tileSize = (float)Base::kTileSize;
         SetShaderValue(m_terrainShader, loc, &tileSize, SHADER_UNIFORM_FLOAT);
@@ -107,7 +110,7 @@ const Model* AssetCache::getModel(const std::string& modelName)
         model = buildWorldMesh(m_map);
         model.materials[0].shader = getTerrainShader();
     } else if (modelName == "character") {
-        model = LoadModel("client/assets/models/osrs_char.glb");
+        model = LoadModel(kCharacterModel);
     } else {
         return nullptr;
     }
@@ -124,20 +127,13 @@ void AssetCache::ensureAnimsLoaded(const std::string& modelName, const std::stri
     m_anims.emplace(modelName, set);
 }
 
-int AssetCache::findAnimation(const std::string& modelName, const std::string& animName)
+const ModelAnimation* AssetCache::getAnimation(const std::string& modelName, const std::string& animName)
 {
-    if (modelName == "character") ensureAnimsLoaded(modelName, "client/assets/models/osrs_char.glb");
+    if (modelName == "character") ensureAnimsLoaded(modelName, kCharacterModel);
     auto it = m_anims.find(modelName);
-    if (it == m_anims.end()) return -1;
+    if (it == m_anims.end()) return nullptr;
     for (int i = 0; i < it->second.count; i++) {
-        if (animName == it->second.anims[i].name) return i;
+        if (animName == it->second.anims[i].name) return &it->second.anims[i];
     }
-    return -1;
-}
-
-const ModelAnimation* AssetCache::getAnimation(const std::string& modelName, int index)
-{
-    auto it = m_anims.find(modelName);
-    if (it == m_anims.end() || index < 0 || index >= it->second.count) return nullptr;
-    return &it->second.anims[index];
+    return nullptr;
 }

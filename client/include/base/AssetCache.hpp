@@ -12,9 +12,7 @@ public:
     const Model* getModel(const std::string& modelName);
     float heightAt(uint16_t tileX, uint16_t tileY) const;
 
-    // returns -1 if not found
-    int findAnimation(const std::string& modelName, const std::string& animName);
-    const ModelAnimation* getAnimation(const std::string& modelName, int index);
+    const ModelAnimation* getAnimation(const std::string& modelName, const std::string& animName);
 
 private:
     std::unordered_map<std::string, Model> m_models;
