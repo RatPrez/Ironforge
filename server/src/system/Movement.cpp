@@ -3,6 +3,7 @@
 #include "shared/Components.hpp"
 #include "shared/Packets.hpp"
 #include "Components.hpp"
+#include "NetBroadcast.hpp"
 
 void System::Movement(WorldContext& ctx)
 {
@@ -33,13 +34,7 @@ void System::Movement(WorldContext& ctx)
         pkt.x       = pos.x;
         pkt.y       = pos.y;
         pkt.heading = pos.heading;
-        uint32_t netId = pkt.netId;
-        auto players = ctx.registry.view<Player, KnownEntities>();
-        for (auto playerEnt : players) {
-            auto& known = players.get<KnownEntities>(playerEnt);
-            if (!known.netIds.count(netId)) continue;
-            ctx.net.outbox.send(players.get<Player>(playerEnt).conn, pkt);
-        }
+        sendToKnown(ctx, pkt.netId, pkt);
 
         if (path.index >= path.steps.size()) {
             ctx.registry.remove<MovePath>(entity);

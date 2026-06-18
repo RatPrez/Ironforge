@@ -3,13 +3,14 @@
 #include <raymath.h>
 #include <cmath>
 
-#include "shared/Base.hpp"
+#include "Base.hpp"
 #include "shared/Components.hpp"
 #include "base/AssetCache.hpp"
 #include "Components.hpp"
 
 static constexpr float kTickDuration    = 0.6f;
 static constexpr float kHeadingDuration = 0.3f;
+static constexpr float kTileCenterOffset = Base::kTileSize * 0.5f;
 
 // shortest-path angle interpolation, e.g. 315 -> 0 rotates +45, not -315
 static float LerpAngle(float from, float to, float t)
@@ -27,9 +28,8 @@ void System::MovementInterp(WorldContext& ctx, const float& dt)
 
         if (rpos.moveStartTime < 0.f) continue;
 
-        float half = Base::kTileSize * 0.5f;
-        float targetX = pos.x * (float)Base::kTileSize + half;
-        float targetZ = pos.y * (float)Base::kTileSize + half;
+        float targetX = pos.x * (float)Base::kTileSize + kTileCenterOffset;
+        float targetZ = pos.y * (float)Base::kTileSize + kTileCenterOffset;
         float targetY = ctx.assets.heightAt(pos.x, pos.y);
 
         float elapsed = (float)GetTime() - rpos.moveStartTime;

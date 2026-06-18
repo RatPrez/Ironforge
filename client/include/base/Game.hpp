@@ -22,8 +22,6 @@ public:
 
 private:
     static void onNetStatusChanged(SteamNetConnectionStatusChangedCallback_t *info);
-
-private:
     entt::registry m_world;
     DebugTerminal m_terminal;
 

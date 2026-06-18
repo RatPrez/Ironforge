@@ -3,7 +3,7 @@
 #include <raylib.h>
 #include <cmath>
 
-#include "shared/Base.hpp"
+#include "Base.hpp"
 #include "shared/Packets.hpp"
 #include "base/NetContext.hpp"
 #include "base/DebugTerminal.hpp"

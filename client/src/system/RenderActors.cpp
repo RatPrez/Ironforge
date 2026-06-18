@@ -2,11 +2,12 @@
 #include <raylib.h>
 #include <rlgl.h>
 
-#include "shared/Base.hpp"
 #include "base/AssetCache.hpp"
 #include "Components.hpp"
 
-static constexpr float kCharacterScale = 0.8f; // tune until proportions match OSRS
+static constexpr float kCharacterScale = 0.8f;
+static constexpr float kIdleFps       = 7.f;
+static constexpr float kWalkFps       = 14.f;
 
 void System::RenderActors(WorldContext& ctx, const float& dt)
 {
@@ -19,13 +20,12 @@ void System::RenderActors(WorldContext& ctx, const float& dt)
 
         const std::string& wanted = (rp.moveStartTime >= 0.f) ? "walk" : "idle";
         if (wanted != anim.current) {
-            anim.fps = wanted == "idle" ? 7.f : 14.f;
+            anim.fps = wanted == "idle" ? kIdleFps : kWalkFps;
             anim.current = wanted;
             anim.timer = 0.f;
         }
 
-        int clipIdx = ctx.assets.findAnimation("character", anim.current);
-        const ModelAnimation* clip = (clipIdx >= 0) ? ctx.assets.getAnimation("character", clipIdx) : nullptr;
+        const ModelAnimation* clip = ctx.assets.getAnimation("character", anim.current);
 
         if (model && clip && clip->frameCount > 0) {
             anim.timer += dt;

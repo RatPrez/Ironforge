@@ -8,7 +8,7 @@ struct Actor {};
 struct AnimationState
 {
     float timer = 0.f;
-    float fps   = 17.f;
+    float fps   = 0.f;
     std::string current; // name of the clip currently playing
 };
 

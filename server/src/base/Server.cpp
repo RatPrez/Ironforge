@@ -10,6 +10,7 @@
 #include "shared/Components.hpp"
 #include "shared/MapLoader.hpp"
 #include "Components.hpp"
+#include "Base.hpp"
 
 Server* Server::s_instance = nullptr;
 
@@ -18,7 +19,7 @@ Server::Server()
 {
     s_instance = this;
     memset(m_map, 0, sizeof(m_map));
-    if (!loadMap("chunk_0_0.omap", m_map))
+    if (!loadMap(Base::kDefaultMapPath, m_map))
         fprintf(stderr, "[server] warning: chunk_0_0.omap not found, all tiles passable\n");
 
     SteamDatagramErrMsg err;
@@ -31,7 +32,7 @@ Server::Server()
 
     SteamNetworkingIPAddr addr;
     addr.Clear();
-    addr.m_port = 27020;
+    addr.m_port = Base::kServerPort;
 
     SteamNetworkingConfigValue_t opt;
     opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void *)onNetStatusChanged);
@@ -44,7 +45,7 @@ Server::Server()
 
     m_net.pollGroup = m_net.sockets->CreatePollGroup();
 
-    printf("[server] listening on port 27020\n");
+    printf("[server] listening on port %d\n", Base::kServerPort);
 
     signal(SIGINT,  [](int) { if (s_instance) s_instance->m_running = false; });
     signal(SIGTERM, [](int) { if (s_instance) s_instance->m_running = false; });
@@ -70,7 +71,7 @@ void Server::onNetStatusChanged(SteamNetConnectionStatusChangedCallback_t *info)
         {
             entt::entity entity = s_instance->m_world.create();
             s_instance->m_net.connToEntity[info->m_hConn] = entity;
-            s_instance->m_world.emplace<Position>(entity, uint16_t{20}, uint16_t{20}, uint8_t{0});
+            s_instance->m_world.emplace<Position>(entity, Base::kDefaultSpawnX, Base::kDefaultSpawnY, uint8_t{0});
             s_instance->m_world.emplace<Player>(entity, info->m_hConn);
             s_instance->m_world.emplace<KnownEntities>(entity);
 
@@ -110,7 +111,7 @@ void Server::onNetStatusChanged(SteamNetConnectionStatusChangedCallback_t *info)
 
 void Server::run()
 {
-    constexpr auto kTickDuration = std::chrono::milliseconds(600);
+    constexpr auto kTickDuration = std::chrono::milliseconds(Base::kTickDurationMs);
 
     while (m_running) {
         auto tick_start = std::chrono::steady_clock::now();

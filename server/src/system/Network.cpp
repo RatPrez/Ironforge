@@ -7,10 +7,12 @@
 #include "shared/Packets.hpp"
 #include "shared/Components.hpp"
 #include "Components.hpp"
+#include "Base.hpp"
+#include "NetBroadcast.hpp"
 
 namespace
 { // handlers
-    void handleMove(WorldContext& ctx, HSteamNetConnection conn, void* pData)
+    void handleMove(WorldContext& ctx, HSteamNetConnection conn, const void* pData)
     {
         auto it = ctx.net.connToEntity.find(conn);
         if (it == ctx.net.connToEntity.end()) return;
@@ -19,7 +21,7 @@ namespace
         ctx.registry.emplace_or_replace<MoveTarget>(entity, (uint16_t)pkt->x, (uint16_t)pkt->y);
     }
 
-    void handleChat(WorldContext& ctx, HSteamNetConnection conn, void* pData)
+    void handleChat(WorldContext& ctx, HSteamNetConnection conn, const void* pData)
     {
         auto it = ctx.net.connToEntity.find(conn);
         if (it == ctx.net.connToEntity.end()) return;
@@ -30,12 +32,7 @@ namespace
         memcpy(out.text, pkt->text, sizeof(out.text));
         out.text[sizeof(out.text) - 1] = '\0';
 
-        auto players = ctx.registry.view<Player, KnownEntities>();
-        for (auto playerEnt : players) {
-            auto& known = players.get<KnownEntities>(playerEnt);
-            if (!known.netIds.count(out.netId)) continue;
-            ctx.net.outbox.send(players.get<Player>(playerEnt).conn, out);
-        }
+        sendToKnown(ctx, out.netId, out);
     }
 }
 
@@ -43,8 +40,8 @@ void System::NetReceive(WorldContext& ctx)
 {
     ctx.net.sockets->RunCallbacks();
 
-    ISteamNetworkingMessage* msgs[64];
-    int count = ctx.net.sockets->ReceiveMessagesOnPollGroup(ctx.net.pollGroup, msgs, 64);
+    ISteamNetworkingMessage* msgs[Base::kMaxMessagesPerTick];
+    int count = ctx.net.sockets->ReceiveMessagesOnPollGroup(ctx.net.pollGroup, msgs, Base::kMaxMessagesPerTick);
     for (int i = 0; i < count; i++) {
         ISteamNetworkingMessage* msg = msgs[i];
         if (msg->m_cbSize < (int)sizeof(PacketHeader)) {

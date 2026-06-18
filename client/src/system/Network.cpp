@@ -5,11 +5,14 @@
 #include "shared/Components.hpp"
 #include "Components.hpp"
 
-#include "shared/Base.hpp"
+#include "Base.hpp"
 #include "base/DebugTerminal.hpp"
 #include "base/AssetCache.hpp"
 #include <raylib.h>
 #include <cstring>
+
+static constexpr float kHeadingToDegrees = 45.f;
+static constexpr float kTileCenterOffset = Base::kTileSize * 0.5f;
 
 namespace
 { // handlers
@@ -27,14 +30,13 @@ namespace
         auto* pkt = reinterpret_cast<const SPacketSpawn*>(pData);
         entt::entity entity = getOrCreate(ctx, pkt->netId);
 
-        float half = Base::kTileSize * 0.5f;
-        float wx = pkt->x * (float)Base::kTileSize + half;
-        float wz = pkt->y * (float)Base::kTileSize + half;
+        float wx = pkt->x * (float)Base::kTileSize + kTileCenterOffset;
+        float wz = pkt->y * (float)Base::kTileSize + kTileCenterOffset;
         float wy = ctx.assets.heightAt(pkt->x, pkt->y);
         ctx.registry.emplace_or_replace<Actor>(entity);
         ctx.registry.emplace_or_replace<AnimationState>(entity);
         ctx.registry.emplace_or_replace<Position>(entity, pkt->x, pkt->y, pkt->heading);
-        float heading = pkt->heading * 45.f;
+        float heading = pkt->heading * kHeadingToDegrees;
         ctx.registry.emplace_or_replace<RenderPosition>(entity, wx, wy, wz, wx, wy, wz, -1.f, heading, heading, heading);
 
         DebugTerminal::Instance()->log("Entity spawned: " + std::to_string(pkt->netId));
@@ -79,7 +81,7 @@ namespace
             rp.startY        = rp.y;
             rp.startZ        = rp.z;
             rp.startHeading  = rp.heading;
-            rp.targetHeading = pkt->heading * 45.f;
+            rp.targetHeading = pkt->heading * kHeadingToDegrees;
             rp.moveStartTime = (float)GetTime();
         });
     }

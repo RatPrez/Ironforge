@@ -6,6 +6,10 @@
 #include "base/CamSettings.hpp"
 #include "Components.hpp"
 
+static constexpr float kMinPitch         = 5.f;
+static constexpr float kMaxPitch         = 89.f;
+static constexpr float kMouseSensitivity = 0.3f;
+
 void System::Camera(WorldContext& ctx, const float& dt)
 {
     auto entity = ctx.registry.view<RenderPosition, LocalPlayer>().front();
@@ -31,15 +35,15 @@ void System::Camera(WorldContext& ctx, const float& dt)
     }
 
     if (IsKeyDown(KEY_UP)) {
-        settings.pitch = Clamp(settings.pitch + rotateSpeed, 5.0f, 89.0f);
+        settings.pitch = Clamp(settings.pitch + rotateSpeed, kMinPitch, kMaxPitch);
     } else if (IsKeyDown(KEY_DOWN)) {
-        settings.pitch = Clamp(settings.pitch - rotateSpeed, 5.0f, 89.0f);
+        settings.pitch = Clamp(settings.pitch - rotateSpeed, kMinPitch, kMaxPitch);
     }
 
     if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
         Vector2 delta = GetMouseDelta();
-        settings.yaw   -= delta.x * 0.3f;
-        settings.pitch  = Clamp(settings.pitch + delta.y * 0.3f, 5.0f, 89.0f);
+        settings.yaw   -= delta.x * kMouseSensitivity;
+        settings.pitch  = Clamp(settings.pitch + delta.y * kMouseSensitivity, kMinPitch, kMaxPitch);
     }
 
     float yawRad = settings.yaw * DEG2RAD;

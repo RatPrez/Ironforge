@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "shared/Components.hpp"
-#include "shared/Base.hpp"
+#include "Base.hpp"
 #include "shared/Map.hpp"
 #include "Components.hpp"
 
@@ -27,17 +27,16 @@ namespace
         }
     };
 
-    // Octile distance — diagonal costs 14, cardinal costs 10 (scaled sqrt(2))
+    constexpr int kCardinalCost = 10;
+    constexpr int kDiagonalCost = 14;
+    constexpr bool kIsDiagonal[8] = { false, true, false, true, false, true, false, true };
+
     inline int octile(int ax, int ay, int bx, int by)
     {
         int dx = std::abs(ax - bx);
         int dy = std::abs(ay - by);
-        return 10 * std::max(dx, dy) + 4 * std::min(dx, dy);
+        return kCardinalCost * std::max(dx, dy) + (kDiagonalCost - kCardinalCost) * std::min(dx, dy);
     }
-
-    constexpr int kCardinalCost = 10;
-    constexpr int kDiagonalCost = 14;
-    constexpr bool kIsDiagonal[8] = { false, true, false, true, false, true, false, true };
 
     struct Node
     {
