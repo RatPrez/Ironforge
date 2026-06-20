@@ -9,6 +9,7 @@
 #include "Components.hpp"
 
 static constexpr float kTickDuration    = 0.6f;
+static constexpr float kHalfTick        = kTickDuration * 0.5f;
 static constexpr float kHeadingDuration = 0.3f;
 static constexpr float kTileCenterOffset = Base::kTileSize * 0.5f;
 
@@ -33,16 +34,28 @@ void System::MovementInterp(WorldContext& ctx, const float& dt)
         float targetY = ctx.assets.heightAt(pos.x, pos.y);
 
         float elapsed = (float)GetTime() - rpos.moveStartTime;
-        float progress = Clamp(elapsed / kTickDuration, 0.f, 1.f);
         float headingProgress = Clamp(elapsed / kHeadingDuration, 0.f, 1.f);
-
-        rpos.x = Lerp(rpos.startX, targetX, progress);
-        rpos.y = Lerp(rpos.startY, targetY, progress);
-        rpos.z = Lerp(rpos.startZ, targetZ, progress);
         rpos.heading = LerpAngle(rpos.startHeading, rpos.targetHeading, headingProgress);
 
-        if (progress >= 1.f) {
-            rpos.moveStartTime = -1.f;
+        if (rpos.isRunning) {
+            if (elapsed < kHalfTick) {
+                float t = Clamp(elapsed / kHalfTick, 0.f, 1.f);
+                rpos.x = Lerp(rpos.startX, rpos.midX, t);
+                rpos.y = Lerp(rpos.startY, rpos.midY, t);
+                rpos.z = Lerp(rpos.startZ, rpos.midZ, t);
+            } else {
+                float t = Clamp((elapsed - kHalfTick) / kHalfTick, 0.f, 1.f);
+                rpos.x = Lerp(rpos.midX, targetX, t);
+                rpos.y = Lerp(rpos.midY, targetY, t);
+                rpos.z = Lerp(rpos.midZ, targetZ, t);
+            }
+            if (elapsed >= kTickDuration) rpos.moveStartTime = -1.f;
+        } else {
+            float progress = Clamp(elapsed / kTickDuration, 0.f, 1.f);
+            rpos.x = Lerp(rpos.startX, targetX, progress);
+            rpos.y = Lerp(rpos.startY, targetY, progress);
+            rpos.z = Lerp(rpos.startZ, targetZ, progress);
+            if (progress >= 1.f) rpos.moveStartTime = -1.f;
         }
     }
 }

@@ -5,14 +5,15 @@ enum PacketType : int
 {
     // client -> server
     CMove = 0,
+    CRun  = 1,
 
     // server -> client
-    SSpawn    = 1,
-    SPosition = 2,
-    SSelf     = 3,
-    SDespawn  = 4,
-    CChat     = 5,
-    SChat     = 6,
+    SSpawn    = 1000,
+    SPosition = 1001,
+    SSelf     = 1002,
+    SDespawn  = 1003,
+    CChat     = 1004,
+    SChat     = 1005,
 };
 
 struct PacketHeader
@@ -28,6 +29,12 @@ struct CPacketMove
     PacketHeader header = { PacketType::CMove };
     int x;
     int y;
+};
+
+struct CPacketRun
+{
+    PacketHeader header = { PacketType::CRun };
+    bool state;
 };
 
 // server -> client
@@ -57,6 +64,8 @@ struct SPacketPosition
     uint32_t netId;  // entity id so client knows who moved
     uint16_t x, y;
     uint8_t  heading;
+    bool     isRunning;
+    uint16_t midX, midY;
 };
 
 // client -> server

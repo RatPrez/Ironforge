@@ -4,6 +4,7 @@
 #include "shared/Packets.hpp"
 #include "Components.hpp"
 #include "NetBroadcast.hpp"
+#include "Util.hpp"
 
 void System::Movement(WorldContext& ctx)
 {
@@ -11,26 +12,31 @@ void System::Movement(WorldContext& ctx)
     for (auto entity : view) {
         auto& path = view.get<MovePath>(entity);
         auto& pos  = view.get<Position>(entity);
+        bool running = ctx.registry.all_of<Running>(entity);
 
         auto [tx, ty] = path.steps[path.index];
-
-        int dx = (int)tx - pos.x;
-        int dy = (int)ty - pos.y;
-        if      (dx ==  0 && dy ==  1) pos.heading = 0;
-        else if (dx ==  1 && dy ==  1) pos.heading = 1;
-        else if (dx ==  1 && dy ==  0) pos.heading = 2;
-        else if (dx ==  1 && dy == -1) pos.heading = 3;
-        else if (dx ==  0 && dy == -1) pos.heading = 4;
-        else if (dx == -1 && dy == -1) pos.heading = 5;
-        else if (dx == -1 && dy ==  0) pos.heading = 6;
-        else if (dx == -1 && dy ==  1) pos.heading = 7;
-
-        pos.x = tx;
-        pos.y = ty;
-        path.index++;
+        pos.heading = Util::getHeadingFromTarget(pos.x, pos.y, tx, ty);
 
         SPacketPosition pkt;
         pkt.netId   = static_cast<uint32_t>(entity);
+
+        if (running && path.index + 1 < path.steps.size()) {
+            auto [tx2, ty2] = path.steps[path.index + 1];
+            pos.x = tx2;
+            pos.y = ty2;
+            path.index += 2;
+
+            pkt.isRunning = true;
+            pkt.midX = tx;
+            pkt.midY = ty;
+        } else {
+            pos.x = tx;
+            pos.y = ty;
+            path.index += 1;
+
+            pkt.isRunning = false;
+        }
+
         pkt.x       = pos.x;
         pkt.y       = pos.y;
         pkt.heading = pos.heading;

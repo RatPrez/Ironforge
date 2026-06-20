@@ -21,8 +21,9 @@ struct NetOutbox
                    HSteamNetConnection exclude = k_HSteamNetConnection_Invalid)
     {
         for (HSteamNetConnection conn : clients) {
-            if (conn != exclude)
+            if (conn != exclude) {
                 send(conn, pkt);
+            }
         }
     }
 };

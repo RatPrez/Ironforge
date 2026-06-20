@@ -6,8 +6,9 @@
 #include "Components.hpp"
 
 static constexpr float kCharacterScale = 0.8f;
-static constexpr float kIdleFps       = 7.f;
-static constexpr float kWalkFps       = 14.f;
+static constexpr int kIdleFps = 8;
+static constexpr int kWalkFps = 15;
+static constexpr int kRunFps  = 20;
 
 void System::RenderActors(WorldContext& ctx, const float& dt)
 {
@@ -18,9 +19,15 @@ void System::RenderActors(WorldContext& ctx, const float& dt)
         auto& rp   = view.get<RenderPosition>(entity);
         auto& anim = view.get<AnimationState>(entity);
 
-        const std::string& wanted = (rp.moveStartTime >= 0.f) ? "walk" : "idle";
+        std::string wanted = "idle";
+        int fps = kIdleFps;
+
+        if (rp.moveStartTime >= 0.f) {
+            wanted = rp.isRunning ? "run" : "walk";
+            fps = rp.isRunning ? kRunFps : kWalkFps;
+        }
+
         if (wanted != anim.current) {
-            anim.fps = wanted == "idle" ? kIdleFps : kWalkFps;
             anim.current = wanted;
             anim.timer = 0.f;
         }
@@ -29,7 +36,7 @@ void System::RenderActors(WorldContext& ctx, const float& dt)
 
         if (model && clip && clip->frameCount > 0) {
             anim.timer += dt;
-            int frame = (int)(anim.timer * anim.fps) % clip->frameCount;
+            int frame = (int)(anim.timer * fps) % clip->frameCount;
             UpdateModelAnimation(*model, *clip, frame);
         }
 

@@ -17,9 +17,11 @@ struct RenderPosition
     float x, y, z;
     float startX, startY, startZ;
     float moveStartTime = -1.f; // -1 = not moving
-    float heading;        // currently rendered heading
-    float startHeading;   // heading at the start of the current transition
-    float targetHeading;  // heading we're rotating toward
+    float heading;
+    float startHeading;
+    float targetHeading;
+    bool  isRunning = false;
+    float midX = 0.f, midY = 0.f, midZ = 0.f;
 };
 
 struct ChatBubble

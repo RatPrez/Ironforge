@@ -83,6 +83,12 @@ namespace
             rp.startHeading  = rp.heading;
             rp.targetHeading = pkt->heading * kHeadingToDegrees;
             rp.moveStartTime = (float)GetTime();
+            rp.isRunning     = pkt->isRunning;
+            if (pkt->isRunning) {
+                rp.midX = pkt->midX * (float)Base::kTileSize + kTileCenterOffset;
+                rp.midZ = pkt->midY * (float)Base::kTileSize + kTileCenterOffset;
+                rp.midY = ctx.assets.heightAt(pkt->midX, pkt->midY);
+            }
         });
     }
 

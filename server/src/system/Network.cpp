@@ -21,6 +21,19 @@ namespace
         ctx.registry.emplace_or_replace<MoveTarget>(entity, (uint16_t)pkt->x, (uint16_t)pkt->y);
     }
 
+    void handleRun(WorldContext& ctx, HSteamNetConnection conn, const void* pData)
+    {
+        auto it = ctx.net.connToEntity.find(conn);
+        if (it == ctx.net.connToEntity.end()) return;
+        entt::entity entity = it->second;
+        auto* pkt = reinterpret_cast<const CPacketRun*>(pData);
+        if (pkt->state) {
+            ctx.registry.emplace_or_replace<Running>(entity);
+        } else {
+            ctx.registry.remove<Running>(entity);
+        }
+    }
+
     void handleChat(WorldContext& ctx, HSteamNetConnection conn, const void* pData)
     {
         auto it = ctx.net.connToEntity.find(conn);
@@ -52,6 +65,9 @@ void System::NetReceive(WorldContext& ctx)
         switch (hdr->type) {
         case PacketType::CMove:
             handleMove(ctx, msg->m_conn, msg->m_pData);
+            break;
+        case PacketType::CRun:
+            handleRun(ctx, msg->m_conn, msg->m_pData);
             break;
         case PacketType::CChat:
             handleChat(ctx, msg->m_conn, msg->m_pData);

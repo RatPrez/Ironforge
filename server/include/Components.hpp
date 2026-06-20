@@ -25,3 +25,5 @@ struct KnownEntities
 {
     std::unordered_set<uint32_t> netIds;
 };
+
+struct Running {};

@@ -6,6 +6,7 @@
 #include "Systems.hpp"
 #include "Components.hpp"
 #include "shared/Components.hpp"
+#include "shared/Packets.hpp"
 
 Game* Game::s_instance = nullptr;
 
@@ -57,6 +58,14 @@ Game::Game()
     }
 
     m_terminal.log("Attempting to connect to Server");
+
+    m_terminal.registerCommand("running", [this](const std::vector<std::string>& args) {
+        if (args.empty()) { m_terminal.log("Usage: /running <on|off>", LogLevel::Warning); return; }
+        CPacketRun pkt;
+        pkt.state = (args[0] == "1" || args[0] == "on" || args[0] == "true");
+        m_net.outbox.push(pkt);
+        m_terminal.log(std::string("Running: ") + (pkt.state ? "on" : "off"));
+    });
 }
 
 Game::~Game()
