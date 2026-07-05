@@ -1,5 +1,7 @@
 # OSRS Clone
 
+> ⚠️ **Warning:** This is a very early version of the project. It is currently a private, work-in-progress codebase under active development — things are incomplete, unstable, and subject to change without notice. Not intended for public use yet.
+
 A from-scratch recreation of Old School RuneScape built in C++ using raylib, EnTT, and GameNetworkingSockets.
 
 > **Work in progress** — early stages, expect missing features and rough edges.

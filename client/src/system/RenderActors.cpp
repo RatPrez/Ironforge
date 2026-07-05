@@ -3,11 +3,13 @@
 #include <rlgl.h>
 
 #include "base/AssetCache.hpp"
+
 #include "Components.hpp"
+#include "shared/Components.hpp"
 
 static constexpr float kCharacterScale = 0.8f;
 static constexpr int kIdleFps = 8;
-static constexpr int kWalkFps = 15;
+static constexpr int kWalkFps = 18;
 static constexpr int kRunFps  = 20;
 
 void System::RenderActors(WorldContext& ctx, const float& dt)

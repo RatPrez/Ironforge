@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+struct Actor {};
+
 struct Position
 {
     uint16_t x, y;

@@ -27,3 +27,22 @@ struct KnownEntities
 };
 
 struct Running {};
+
+struct PatrolArea
+{
+    int minX;
+    int maxX;
+    int minY;
+    int maxY;
+
+    float idleFinishTime = -1.f;
+    bool hasTarget = false;
+    int targetX;
+    int targetY;
+};
+
+struct TestMessage
+{
+    float lastAttempt = 0;
+    float lastMessage = 0;
+};

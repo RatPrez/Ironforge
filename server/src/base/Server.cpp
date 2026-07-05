@@ -12,6 +12,8 @@
 #include "Components.hpp"
 #include "Base.hpp"
 
+#include "Util.hpp"
+
 Server* Server::s_instance = nullptr;
 
 Server::Server()
@@ -21,6 +23,18 @@ Server::Server()
     memset(m_map, 0, sizeof(m_map));
     if (!loadMap(Base::kDefaultMapPath, m_map))
         fprintf(stderr, "[server] warning: chunk_0_0.omap not found, all tiles passable\n");
+
+    // TODO: temp NPC to test patrol logic
+    for (int i = 0; i < 100; i++) {
+        auto npc = m_world.create();
+        m_world.emplace<Position>(npc, uint16_t{30}, uint16_t{30}, uint8_t{0});
+        m_world.emplace<PatrolArea>(npc, 10, 50, 10, 50);
+        m_world.emplace<TestMessage>(npc);
+
+        if (Util::getRandomValue<int>(0, 100) > 50) {
+            m_world.emplace<Running>(npc);
+        }
+    }
 
     SteamDatagramErrMsg err;
     if (!GameNetworkingSockets_Init(nullptr, err)) {
@@ -113,13 +127,18 @@ void Server::run()
 {
     constexpr auto kTickDuration = std::chrono::milliseconds(Base::kTickDurationMs);
 
+    const auto server_start = std::chrono::steady_clock::now();
+
     while (m_running) {
         auto tick_start = std::chrono::steady_clock::now();
+        float currentTime = std::chrono::duration<float>(tick_start - server_start).count();
 
-        WorldContext ctx{ m_world, m_net, m_map };
+        WorldContext ctx{ m_world, m_net, m_map, currentTime };
         System::NetReceive(ctx);
+        System::Patrol(ctx);
         System::Pathfinder(ctx);
         System::Movement(ctx);
+        System::Testing(ctx);
         System::Sync(ctx);
         System::NetSend(ctx);
 

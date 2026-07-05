@@ -5,6 +5,8 @@ Window::Window()
 {
     InitWindow(1270, 900, "OSRS");
     SetTargetFPS(60);
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+
     rlImGuiSetup(true);
 
     // --- CAMERA ---

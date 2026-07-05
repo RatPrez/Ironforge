@@ -3,8 +3,6 @@
 
 struct LocalPlayer {};
 
-struct Actor {};
-
 struct AnimationState
 {
     float timer = 0.f;
