@@ -1,14 +1,14 @@
-# OSRS Clone
+# OSRS Sandbox
 
-> ⚠️ **Warning:** This is a very early version of the project. It is currently a private, work-in-progress codebase under active development — things are incomplete, unstable, and subject to change without notice. Not intended for public use yet.
+> **Experimental / work in progress.** A tech playground, not a game.
 
-A from-scratch recreation of Old School RuneScape built in C++ using raylib, EnTT, and GameNetworkingSockets.
+A from-scratch experiment recreating the feel of Old School RuneScape's tile movement and netcode, built in C++ with raylib, EnTT, and GameNetworkingSockets.
 
-> **Work in progress** — early stages, expect missing features and rough edges.
+![screenshot](docs/screenshot.png)
 
 ## What it is
 
-A tile-based multiplayer game with a client-server architecture, aiming to replicate the core feel of OSRS: grid movement, isometric-ish camera, character animations, and a persistent world. The server runs an authoritative game loop with A* pathfinding and tile collision; the client handles rendering, input, and smooth movement interpolation between server ticks.
+A tile-based multiplayer movement demo with a client-server architecture, aiming to replicate the core feel of OSRS: grid movement, isometric-ish camera, character animations, and a persistent world. The server runs an authoritative game loop with A* pathfinding and tile collision; the client handles rendering, input, and smooth movement interpolation between server ticks.
 
 ## Current state
 
@@ -21,4 +21,6 @@ A tile-based multiplayer game with a client-server architecture, aiming to repli
 - In-game text chat with floating chat bubbles above characters
 - Standalone world editor for painting tile heights and collision flags and exporting map chunks
 
-![screenshot](docs/screenshot.png)
+---
+
+*Not affiliated with or endorsed by Jagex. Old School RuneScape is a trademark of Jagex Ltd. This is an independent, non-commercial learning project built from original code.*
